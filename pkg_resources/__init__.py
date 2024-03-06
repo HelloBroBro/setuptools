@@ -27,7 +27,7 @@ import io
 import time
 import re
 import types
-from typing import Protocol
+from typing import List, Protocol
 import zipfile
 import zipimport
 import warnings
@@ -531,7 +531,7 @@ def get_entry_info(dist, group, name):
 
 
 class IMetadataProvider(Protocol):
-    def has_metadata(self, name):
+    def has_metadata(self, name) -> bool:
         """Does the package's distribution contain the named metadata?"""
 
     def get_metadata(self, name):
@@ -543,7 +543,7 @@ class IMetadataProvider(Protocol):
         Leading and trailing whitespace is stripped from each line, and lines
         with ``#`` as the first non-blank character are omitted."""
 
-    def metadata_isdir(self, name):
+    def metadata_isdir(self, name) -> bool:
         """Is the named metadata a directory?  (like ``os.path.isdir()``)"""
 
     def metadata_listdir(self, name):
@@ -1339,7 +1339,7 @@ class ResourceManager:
 
         self.extraction_path = path
 
-    def cleanup_resources(self, force=False):
+    def cleanup_resources(self, force=False) -> List[str]:
         """
         Delete all extracted resource files and directories, returning a list
         of the file and directory names that could not be successfully removed.
@@ -1351,6 +1351,7 @@ class ResourceManager:
         directory used for extractions.
         """
         # XXX
+        return []
 
 
 def get_default_cache():
@@ -1488,9 +1489,9 @@ class NullProvider:
     def _get_metadata_path(self, name):
         return self._fn(self.egg_info, name)
 
-    def has_metadata(self, name):
+    def has_metadata(self, name) -> bool:
         if not self.egg_info:
-            return self.egg_info
+            return False
 
         path = self._get_metadata_path(name)
         return self._has(path)
@@ -1514,8 +1515,8 @@ class NullProvider:
     def resource_isdir(self, resource_name):
         return self._isdir(self._fn(self.module_path, resource_name))
 
-    def metadata_isdir(self, name):
-        return self.egg_info and self._isdir(self._fn(self.egg_info, name))
+    def metadata_isdir(self, name) -> bool:
+        return bool(self.egg_info and self._isdir(self._fn(self.egg_info, name)))
 
     def resource_listdir(self, resource_name):
         return self._listdir(self._fn(self.module_path, resource_name))
@@ -1554,12 +1555,12 @@ class NullProvider:
             script_code = compile(script_text, script_filename, 'exec')
             exec(script_code, namespace, namespace)
 
-    def _has(self, path):
+    def _has(self, path) -> bool:
         raise NotImplementedError(
             "Can't perform this operation for unregistered loader type"
         )
 
-    def _isdir(self, path):
+    def _isdir(self, path) -> bool:
         raise NotImplementedError(
             "Can't perform this operation for unregistered loader type"
         )
@@ -1694,10 +1695,10 @@ class EggProvider(NullProvider):
 class DefaultProvider(EggProvider):
     """Provides access to package resources in the filesystem"""
 
-    def _has(self, path):
+    def _has(self, path) -> bool:
         return os.path.exists(path)
 
-    def _isdir(self, path):
+    def _isdir(self, path) -> bool:
         return os.path.isdir(path)
 
     def _listdir(self, path):
@@ -1939,11 +1940,11 @@ class ZipProvider(EggProvider):
             self._dirindex = ind
             return ind
 
-    def _has(self, fspath):
+    def _has(self, fspath) -> bool:
         zip_path = self._zipinfo_name(fspath)
         return zip_path in self.zipinfo or zip_path in self._index()
 
-    def _isdir(self, fspath):
+    def _isdir(self, fspath) -> bool:
         return self._zipinfo_name(fspath) in self._index()
 
     def _listdir(self, fspath):
@@ -1977,7 +1978,7 @@ class FileMetadata(EmptyProvider):
     def _get_metadata_path(self, name):
         return self.path
 
-    def has_metadata(self, name):
+    def has_metadata(self, name) -> bool:
         return name == 'PKG-INFO' and os.path.isfile(self.path)
 
     def get_metadata(self, name):
@@ -3207,7 +3208,9 @@ def _find_adapter(registry, ob):
     for t in types:
         if t in registry:
             return registry[t]
-    return None
+    # _find_adapter would previously return None, and immediatly be called.
+    # So we're raising a TypeError to keep backward compatibility if anyone depended on that behaviour.
+    raise TypeError(f"Could not find adapter for {registry} and {ob}")
 
 
 def ensure_directory(path):
