@@ -1,3 +1,43 @@
+v69.5.1
+=======
+
+No significant changes.
+
+
+v69.4.2
+=======
+
+Bugfixes
+--------
+
+- Merged bugfix for pypa/distutils#246 (#27489545)
+
+
+v69.5.0
+=======
+
+Features
+--------
+
+- Refresh unpinned vendored dependencies. (#4253)
+- Updated vendored packaging to version 24.0. (#4301)
+
+
+v69.4.1
+=======
+
+No significant changes.
+
+
+v69.3.1
+=======
+
+Bugfixes
+--------
+
+- Remove attempt to canonicalize the version. It's already canonical enough. (#4302)
+
+
 v69.4.0
 =======
 
