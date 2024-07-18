@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "setuptools"
-version = "70.3.0"
+version = "71.0.1"
 authors = [
 	{ name = "Python Packaging Authority", email = "distutils-sig@python.org" },
 ]
@@ -24,7 +24,8 @@ classifiers = [
 ]
 keywords = ["CPAN PyPI distutils eggs package management"]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+]
 
 [project.urls]
 Source = "https://github.com/pypa/setuptools"
@@ -98,9 +99,25 @@ doc = [
 
 	# workaround for pypa/setuptools#4333
 	"pyproject-hooks!=1.1",
+
+	# workaround for sphinx-doc/sphinx#12613
+	"sphinx < 7.4",
 ]
 ssl = []
 certs = []
+core = [
+	"packaging>=24",
+	"ordered-set>=3.1.1",
+	"more_itertools>=8.8",
+	"jaraco.text>=3.7",
+	"importlib_resources>=5.10.2",
+	"importlib_metadata>=6",
+	"tomli>=2.0.1",
+	"wheel>=0.43.0",
+
+	# pkg_resources
+	"platformdirs >= 2.6.2",
+]
 
 [project.entry-points."distutils.commands"]
 alias = "setuptools.command.alias:alias"
@@ -161,9 +178,7 @@ PKG-INFO = "setuptools.command.egg_info:write_pkg_info"
 "dependency_links.txt" = "setuptools.command.egg_info:overwrite_arg"
 
 [tool.setuptools]
-# disabled as it causes tests to be included #2505
-# include_package_data = true
-include-package-data = false
+include-package-data = true
 
 [tool.setuptools.packages.find]
 include = [

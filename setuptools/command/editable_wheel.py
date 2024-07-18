@@ -299,7 +299,7 @@ class editable_wheel(Command):
         build = self.get_finalized_command("build")
         for name in build.get_sub_commands():
             cmd = self.get_finalized_command(name)
-            if name == "build_py" and type(cmd) != build_py_cls:
+            if name == "build_py" and type(cmd) is not build_py_cls:
                 self._safely_run(name)
             else:
                 self.run_command(name)
@@ -333,7 +333,7 @@ class editable_wheel(Command):
             )
 
     def _create_wheel_file(self, bdist_wheel):
-        from ..extern.wheel.wheelfile import WheelFile
+        from wheel.wheelfile import WheelFile
 
         dist_info = self.get_finalized_command("dist_info")
         dist_name = dist_info.name
