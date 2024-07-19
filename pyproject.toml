@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "setuptools"
-version = "71.0.1"
+version = "71.0.3"
 authors = [
 	{ name = "Python Packaging Authority", email = "distutils-sig@python.org" },
 ]
@@ -99,9 +99,6 @@ doc = [
 
 	# workaround for pypa/setuptools#4333
 	"pyproject-hooks!=1.1",
-
-	# workaround for sphinx-doc/sphinx#12613
-	"sphinx < 7.4",
 ]
 ssl = []
 certs = []
