@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "setuptools"
-version = "72.2.0"
+version = "73.0.0"
 authors = [
 	{ name = "Python Packaging Authority", email = "distutils-sig@python.org" },
 ]
@@ -110,7 +110,6 @@ ssl = []
 certs = []
 core = [
 	"packaging>=24",
-	"ordered-set>=3.1.1",
 	"more_itertools>=8.8",
 	"jaraco.text>=3.7",
 	"importlib_resources>=5.10.2; python_version < '3.9'",
