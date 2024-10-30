@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "setuptools"
-version = "75.2.0"
+version = "75.3.0"
 authors = [
 	{ name = "Python Packaging Authority", email = "distutils-sig@python.org" },
 ]
@@ -22,10 +22,10 @@ classifiers = [
 	"Topic :: System :: Systems Administration",
 	"Topic :: Utilities",
 ]
-keywords = ["CPAN PyPI distutils eggs package management"]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
 ]
+keywords = ["CPAN PyPI distutils eggs package management"]
 
 [project.urls]
 Source = "https://github.com/pypa/setuptools"
