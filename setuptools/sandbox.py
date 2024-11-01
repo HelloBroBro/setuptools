@@ -12,14 +12,16 @@ import sys
 import tempfile
 import textwrap
 from types import TracebackType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pkg_resources
 from pkg_resources import working_set
 
 from distutils.errors import DistutilsError
 
-if sys.platform.startswith('java'):
+if TYPE_CHECKING:
+    import os as _os
+elif sys.platform.startswith('java'):
     import org.python.modules.posix.PosixModule as _os  # pyright: ignore[reportMissingImports]
 else:
     _os = sys.modules[os.name]
@@ -406,6 +408,11 @@ class AbstractSandbox:
             self._remap_input(operation + '-to', dst, *args, **kw),
         )
 
+    if TYPE_CHECKING:
+        # This is a catch-all for all the dynamically created attributes.
+        # This isn't public API anyway
+        def __getattribute__(self, name: str) -> Any: ...
+
 
 if hasattr(os, 'devnull'):
     _EXCEPTIONS = [os.devnull]
@@ -416,7 +423,7 @@ else:
 class DirectorySandbox(AbstractSandbox):
     """Restrict operations to a single subdirectory - pseudo-chroot"""
 
-    write_ops: dict[str, None] = dict.fromkeys([
+    write_ops: ClassVar[dict[str, None]] = dict.fromkeys([
         "open",
         "chmod",
         "chown",
@@ -453,7 +460,7 @@ class DirectorySandbox(AbstractSandbox):
             self._violation("open", path, mode, *args, **kw)
         return _open(path, mode, *args, **kw)
 
-    def tmpnam(self):
+    def tmpnam(self) -> None:
         self._violation("tmpnam")
 
     def _ok(self, path):
@@ -491,7 +498,7 @@ class DirectorySandbox(AbstractSandbox):
             self._violation(operation, src, dst, *args, **kw)
         return (src, dst)
 
-    def open(self, file, flags, mode: int = 0o777, *args, **kw):
+    def open(self, file, flags, mode: int = 0o777, *args, **kw) -> int:
         """Called for low-level os.open()"""
         if flags & WRITE_FLAGS and not self._ok(file):
             self._violation("os.open", file, flags, mode, *args, **kw)
