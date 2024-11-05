@@ -72,7 +72,7 @@ class TestEasyInstallTest:
         header = ei.CommandSpec.best().from_environment().as_header()
         dist = FakeDist()
         args = next(ei.ScriptWriter.get_args(dist))
-        name, script = itertools.islice(args, 2)
+        _name, script = itertools.islice(args, 2)
         assert script.startswith(header)
         assert "'spec'" in script
         assert "'console_scripts'" in script
@@ -407,14 +407,14 @@ class TestUserInstallTest:
         logging.basicConfig(level=logging.INFO, stream=sys.stderr)
         log.info('this should not break')
 
-    @pytest.fixture()
+    @pytest.fixture
     def foo_package(self, tmpdir):
         egg_file = tmpdir / 'foo-1.0.egg-info'
         with egg_file.open('w') as f:
             f.write('Name: foo\n')
         return str(tmpdir)
 
-    @pytest.fixture()
+    @pytest.fixture
     def install_target(self, tmpdir):
         target = str(tmpdir)
         with mock.patch('sys.path', sys.path + [target]):
@@ -472,6 +472,12 @@ def distutils_package():
         yield
 
 
+@pytest.mark.usefixtures("distutils_package")
+class TestDistutilsPackage:
+    def test_bdist_egg_available_on_distutils_pkg(self):
+        run_setup('setup.py', ['bdist_egg'])
+
+
 @pytest.fixture
 def mock_index():
     # set up a server which will simulate an alternate package index.
@@ -482,11 +488,6 @@ def mock_index():
         pytest.skip("could not find a valid port")
     p_index.start()
     return p_index
-
-
-class TestDistutilsPackage:
-    def test_bdist_egg_available_on_distutils_pkg(self, distutils_package):
-        run_setup('setup.py', ['bdist_egg'])
 
 
 class TestInstallRequires:
@@ -650,7 +651,7 @@ class TestSetupRequires:
                     temp_dir, use_setup_cfg=use_setup_cfg
                 )
                 test_setup_py = os.path.join(test_pkg, 'setup.py')
-                with contexts.quiet() as (stdout, stderr):
+                with contexts.quiet() as (stdout, _stderr):
                     # Don't even need to install the package, just
                     # running the setup.py at all is sufficient
                     run_setup(test_setup_py, ['--name'])
@@ -712,7 +713,7 @@ class TestSetupRequires:
 
                 test_setup_py = os.path.join(test_pkg, 'setup.py')
 
-                with contexts.quiet() as (stdout, stderr):
+                with contexts.quiet() as (stdout, _stderr):
                     try:
                         # Don't even need to install the package, just
                         # running the setup.py at all is sufficient
@@ -764,7 +765,7 @@ class TestSetupRequires:
                     use_setup_cfg=use_setup_cfg + ('version',),
                 )
                 test_setup_py = os.path.join(test_pkg, 'setup.py')
-                with contexts.quiet() as (stdout, stderr):
+                with contexts.quiet() as (stdout, _stderr):
                     run_setup(test_setup_py, ['--version'])
                 lines = stdout.readlines()
                 assert len(lines) > 0

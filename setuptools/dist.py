@@ -6,19 +6,10 @@ import numbers
 import os
 import re
 import sys
-from collections.abc import Iterable
+from collections.abc import Iterable, MutableMapping, Sequence
 from glob import iglob
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    List,
-    MutableMapping,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Union
 
 from more_itertools import partition, unique_everseen
 from packaging.markers import InvalidMarker, Marker
@@ -66,10 +57,10 @@ Supported iterable types that are known to be:
 - not imply a nested type (like `dict`)
 for use with `isinstance`.
 """
-_Sequence: TypeAlias = Union[Tuple[str, ...], List[str]]
+_Sequence: TypeAlias = Union[tuple[str, ...], list[str]]
 # This is how stringifying _Sequence would look in Python 3.10
 _sequence_type_repr = "tuple[str, ...] | list[str]"
-_OrderedStrSequence: TypeAlias = Union[str, Dict[str, Any], Sequence[str]]
+_OrderedStrSequence: TypeAlias = Union[str, dict[str, Any], Sequence[str]]
 """
 :meta private:
 Avoid single-use iterable. Disallow sets.
@@ -122,7 +113,7 @@ def check_nsp(dist, attr, value):
                 "Distribution contains no modules or packages for "
                 + "namespace package %r" % nsp
             )
-        parent, sep, child = nsp.rpartition('.')
+        parent, _sep, _child = nsp.rpartition('.')
         if parent and parent not in ns_packages:
             distutils.log.warn(
                 "WARNING: %r is declared as a package namespace, but %r"
@@ -154,7 +145,7 @@ def check_extras(dist, attr, value):
 
 
 def _check_extra(extra, reqs):
-    name, sep, marker = extra.partition(':')
+    _name, _sep, marker = extra.partition(':')
     try:
         _check_marker(marker)
     except InvalidMarker:
@@ -895,7 +886,7 @@ class Distribution(_Distribution):
         command = args[0]
         aliases = self.get_option_dict('aliases')
         while command in aliases:
-            src, alias = aliases[command]
+            _src, alias = aliases[command]
             del aliases[command]  # ensure each alias can expand only once!
             import shlex
 
@@ -960,7 +951,7 @@ class Distribution(_Distribution):
 
         for ext in self.ext_modules or ():
             if isinstance(ext, tuple):
-                name, buildinfo = ext
+                name, _buildinfo = ext
             else:
                 name = ext.name
             if name.endswith('module'):

@@ -3,10 +3,11 @@ from __future__ import annotations
 import itertools
 import os
 import sys
+from collections.abc import Iterator
 from importlib.machinery import EXTENSION_SUFFIXES
 from importlib.util import cache_from_source as _compiled_file_name
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 from setuptools.dist import Distribution
 from setuptools.errors import BaseError
@@ -459,7 +460,7 @@ else:
 
         assert output_dir is None  # distutils build_ext doesn't pass this
         output_dir, filename = os.path.split(output_libname)
-        basename, ext = os.path.splitext(filename)
+        basename, _ext = os.path.splitext(filename)
         if self.library_filename("x").startswith('lib'):
             # strip 'lib' prefix; this is kludgy if some platform uses
             # a different prefix

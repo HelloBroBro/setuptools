@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import sys
 
-if sys.version_info < (3, 8):  # noqa: UP036 # Check for unsupported versions
-    raise RuntimeError("Python 3.8 or later is required")
+if sys.version_info < (3, 9):  # noqa: UP036 # Check for unsupported versions
+    raise RuntimeError("Python 3.9 or later is required")
 
 import _imp
 import collections
@@ -50,22 +50,17 @@ import types
 import warnings
 import zipfile
 import zipimport
+from collections.abc import Iterable, Iterator, Mapping, MutableSequence
 from pkgutil import get_importer
 from typing import (
     TYPE_CHECKING,
     Any,
     BinaryIO,
     Callable,
-    Dict,
-    Iterable,
-    Iterator,
     Literal,
-    Mapping,
-    MutableSequence,
     NamedTuple,
     NoReturn,
     Protocol,
-    Tuple,
     TypeVar,
     Union,
     overload,
@@ -424,7 +419,7 @@ def get_provider(moduleOrReq: str | Requirement) -> IResourceProvider | Distribu
     return _find_adapter(_provider_factories, loader)(module)
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def _macos_vers():
     version = platform.mac_ver()[0]
     # fallback for MacPorts
@@ -1120,7 +1115,7 @@ class WorkingSet:
         self.callbacks = callbacks[:]
 
 
-class _ReqExtras(Dict["Requirement", Tuple[str, ...]]):
+class _ReqExtras(dict["Requirement", tuple[str, ...]]):
     """
     Map each requirement to the extras that demanded it.
     """
@@ -1952,7 +1947,7 @@ class EmptyProvider(NullProvider):
 empty_provider = EmptyProvider()
 
 
-class ZipManifests(Dict[str, "MemoizedZipManifests.manifest_mod"]):
+class ZipManifests(dict[str, "MemoizedZipManifests.manifest_mod"]):
     """
     zip manifest builder
     """
@@ -2069,7 +2064,7 @@ class ZipProvider(EggProvider):
             # return the extracted directory name
             return os.path.dirname(last)
 
-        timestamp, size = self._get_date_and_size(self.zipinfo[zip_path])
+        timestamp, _size = self._get_date_and_size(self.zipinfo[zip_path])
 
         if not WRITE_SUPPORT:
             raise OSError(
@@ -2662,7 +2657,7 @@ if TYPE_CHECKING:
 
 else:
 
-    @functools.lru_cache(maxsize=None)
+    @functools.cache
     def _normalize_cached(filename):
         return normalize_path(filename)
 

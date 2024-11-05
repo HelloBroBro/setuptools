@@ -14,11 +14,12 @@ import struct
 import sys
 import sysconfig
 import warnings
+from collections.abc import Iterable, Sequence
 from email.generator import BytesGenerator, Generator
 from email.policy import EmailPolicy
 from glob import iglob
 from shutil import rmtree
-from typing import TYPE_CHECKING, Callable, Iterable, Literal, Sequence, cast
+from typing import TYPE_CHECKING, Callable, Literal, cast
 from zipfile import ZIP_DEFLATED, ZIP_STORED
 
 from packaging import tags, version as _packaging_version
@@ -110,19 +111,11 @@ def get_abi_tag() -> str | None:
     impl = tags.interpreter_name()
     if not soabi and impl in ("cp", "pp") and hasattr(sys, "maxunicode"):
         d = ""
-        m = ""
         u = ""
         if get_flag("Py_DEBUG", hasattr(sys, "gettotalrefcount"), warn=(impl == "cp")):
             d = "d"
 
-        if get_flag(
-            "WITH_PYMALLOC",
-            impl == "cp",
-            warn=(impl == "cp" and sys.version_info < (3, 8)),
-        ) and sys.version_info < (3, 8):
-            m = "m"
-
-        abi = f"{impl}{tags.interpreter_version()}{d}{m}{u}"
+        abi = f"{impl}{tags.interpreter_version()}{d}{u}"
     elif soabi and impl == "cp" and soabi.startswith("cpython"):
         # non-Windows
         abi = "cp" + soabi.split("-")[1]
