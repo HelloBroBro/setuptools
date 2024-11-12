@@ -27,7 +27,7 @@ from tempfile import TemporaryDirectory
 from types import TracebackType
 from typing import TYPE_CHECKING, Protocol, TypeVar, cast
 
-from .. import Command, _normalization, _path, errors, namespaces
+from .. import Command, _normalization, _path, _shutil, errors, namespaces
 from .._path import StrPath
 from ..compat import py312
 from ..discovery import find_package_path
@@ -392,7 +392,7 @@ class EditableStrategy(Protocol):
 
 
 class _StaticPth:
-    def __init__(self, dist: Distribution, name: str, path_entries: list[Path]):
+    def __init__(self, dist: Distribution, name: str, path_entries: list[Path]) -> None:
         self.dist = dist
         self.name = name
         self.path_entries = path_entries
@@ -436,7 +436,7 @@ class _LinkTree(_StaticPth):
         name: str,
         auxiliary_dir: StrPath,
         build_lib: StrPath,
-    ):
+    ) -> None:
         self.auxiliary_dir = Path(auxiliary_dir)
         self.build_lib = Path(build_lib).resolve()
         self._file = dist.get_command_obj("build_py").copy_file
@@ -496,7 +496,7 @@ class _LinkTree(_StaticPth):
 
 
 class _TopLevelFinder:
-    def __init__(self, dist: Distribution, name: str):
+    def __init__(self, dist: Distribution, name: str) -> None:
         self.dist = dist
         self.name = name
 
@@ -773,7 +773,7 @@ def _is_nested(pkg: str, pkg_path: str, parent: str, parent_path: str) -> bool:
 
 def _empty_dir(dir_: _P) -> _P:
     """Create a directory ensured to be empty. Existing files may be removed."""
-    shutil.rmtree(dir_, ignore_errors=True)
+    _shutil.rmtree(dir_, ignore_errors=True)
     os.makedirs(dir_)
     return dir_
 

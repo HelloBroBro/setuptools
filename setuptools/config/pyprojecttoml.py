@@ -41,6 +41,19 @@ def load_file(filepath: StrPath) -> dict:
 
 
 def validate(config: dict, filepath: StrPath) -> bool:
+    skip = os.getenv("SETUPTOOLS_DANGEROUSLY_SKIP_PYPROJECT_VALIDATION", "false")
+    if skip.lower() == "true":  # https://github.com/pypa/setuptools/issues/4459
+        SetuptoolsWarning.emit(
+            "Skipping the validation of `pyproject.toml`.",
+            """
+            Please note that some setuptools functionalities rely on the validation of
+            `pyproject.toml` against misconfiguration to ensure proper operation.
+            By skipping the automatic checks, you taking responsibility for making sure
+            the file is valid. Otherwise unexpected behaviours may occur.
+            """,
+        )
+        return True
+
     from . import _validate_pyproject as validator
 
     trove_classifier = validator.FORMAT_FUNCTIONS.get("trove-classifier")
@@ -176,7 +189,7 @@ class _ConfigExpander:
         root_dir: StrPath | None = None,
         ignore_option_errors: bool = False,
         dist: Distribution | None = None,
-    ):
+    ) -> None:
         self.config = config
         self.root_dir = root_dir or os.getcwd()
         self.project_cfg = config.get("project", {})
@@ -413,7 +426,7 @@ def _ignore_errors(ignore_option_errors: bool):
 class _EnsurePackagesDiscovered(_expand.EnsurePackagesDiscovered):
     def __init__(
         self, distribution: Distribution, project_cfg: dict, setuptools_cfg: dict
-    ):
+    ) -> None:
         super().__init__(distribution)
         self._project_cfg = project_cfg
         self._setuptools_cfg = setuptools_cfg
