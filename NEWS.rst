@@ -1,3 +1,13 @@
+v75.5.0
+=======
+
+Features
+--------
+
+- Removed support for ``SETUPTOOLS_DANGEROUSLY_SKIP_PYPROJECT_VALIDATION``, as it
+  is deemed prone to errors. (#4746)
+
+
 v75.4.0
 =======
 
@@ -11,6 +21,10 @@ Features
   issues, as it may lead to improper functioning.
   Users who enable this setting are responsible for ensuring that ``pyproject.toml``
   complies with setuptools requirements. (#4611)
+
+  .. attention::
+     This environment variable was removed in a later version of ``setuptools``.
+
 - Require Python 3.9 or later. (#4718)
 - Remove dependency on ``importlib_resources``
   and the vendored copy of the library.
